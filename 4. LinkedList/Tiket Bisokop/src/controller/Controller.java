@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import model.Bioskop;
+import model.Cinema;
 import model.Person;
 import service.Service;
 import view.Consule;
@@ -25,6 +25,7 @@ public class Controller {
             consule.menu();
             exit = consule.menuPilhan();
         }
+        consule.closeScanner();
     }
 
     public void addPerson() {
@@ -39,21 +40,38 @@ public class Controller {
     }
 
     public void servicePerson() {
+        Person antrian = service.getPerson().peek();
         
-        Person antrian = service.getPerson().poll();
-        List<Bioskop> cinema = service.getBioskop();
-
         if (antrian != null) {
-            if (!cinema.isEmpty()) {
+            List<Cinema> cinema = service.getCinema();
+
+            int pilihanCinema = consule.pilihCinema(antrian.getNama(), cinema);
+
+            if (service.orderTiket(antrian, pilihanCinema)) {
+                service.getPerson().poll();
                 String namaAntrian = antrian.getNama();
-                consule.detailTiket(namaAntrian, cinema);
+                consule.displayMsg("Tiket berhasil dipesan untuk " + namaAntrian + ".");
             } else {
-                System.out.println("kosong");
+                consule.displayMsg("Gagal memesan tiket. Mungkin kursi sudah habis atau pilihan tidak valid.");
             }
         } else {
             consule.displayMsg("Antrian kosong! Tidak ada yang dilayani.");
         }
-        
+    }
+
+    public void lihatAntrian() {
+        Queue<Person> antrian = service.getPerson();
+        Queue<String> namaAntrian = new LinkedList<>();
+
+        for (Person person : antrian) {
+            namaAntrian.add(person.getNama());
+        }
+        consule.daftarAntiran(namaAntrian);
+    }
+
+    public void lihatCinema() {
+        List<Cinema> cinema = service.getCinema();
+        consule.displayCinemas(cinema);
     }
 
 }

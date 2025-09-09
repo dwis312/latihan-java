@@ -1,10 +1,11 @@
 package view;
 
 import java.util.List;
+import java.util.Queue;
 import java.util.Scanner;
 
 import controller.Controller;
-import model.Bioskop;
+import model.Cinema;
 
 public class Consule {
     private Controller ctrl;
@@ -13,6 +14,13 @@ public class Consule {
 
     public Consule(Controller ctrl) {
         this.ctrl = ctrl;
+    }
+
+    public void closeScanner() {
+        if (input != null) {
+            input.close();
+            System.out.println("Menutup sumber daya.");
+        }
     }
 
     public void displayMsg(String message) {
@@ -26,7 +34,7 @@ public class Consule {
         System.out.println("1. Pesan Tiket");
         System.out.println("2. Layani orang pertama");
         System.out.println("3. Lihat daftar antrian");
-        System.out.println("4. Pembayaran tiket");
+        System.out.println("4. Lihat daftar cinema");
         System.out.println("0. Keluar");
         System.out.print("\nPilihan :");
     }
@@ -43,10 +51,12 @@ public class Consule {
                 enterToContinue();
                 break;
             case 3:
-                
+                ctrl.lihatAntrian();
+                enterToContinue();
                 break;
             case 4:
-                
+                ctrl.lihatCinema();
+                enterToContinue();
                 break;
             case 0:
                 System.out.println("Program berhenti.");
@@ -66,18 +76,44 @@ public class Consule {
         return nama;
     }
 
-    public int detailTiket(String nama, List<Bioskop> bioskop) {
+    public int pilihCinema(String nama, List<Cinema> cinemas) {
         clearScreen();
 
         System.out.println("\n====== Pesan Tiket ======");
         System.out.println("Pesanan Atas Nama: " + nama);
         System.out.println("\nPilih Film: ");
-        for (int i = 0; i < bioskop.size(); i++) {
-            System.out.println(bioskop.get(i).getRoom());
+        for (int i = 0; i < cinemas.size(); i++) {
+            Cinema cinema = cinemas.get(i);
+            System.out.println((i + 1) + ". " + cinema.getRoom().getDeskripsi() + " (Kursi tersedia: " + cinema.getKursiTersedia() + ")");
         }
-        System.out.print("\nPilihan :");
+        System.out.print("\nPilihan (1-" + cinemas.size() + ") :");
         int numPilihan = inputInt();
-        return numPilihan;
+        return numPilihan - 1;
+    }
+
+    public void daftarAntiran(Queue<String> antrian) {
+        clearScreen();
+        System.out.println("\n====== Daftar Antrian ======");
+        if (antrian.isEmpty()) {
+            System.out.println("\nAntrian kosong.");
+        } else {
+            int count = 1;
+            for (String nama : antrian) {
+                System.out.println(count + ". " + nama);
+                count++;
+            }
+        }
+    }
+
+    public void displayCinemas(List<Cinema> cinemas) {
+        clearScreen();
+        System.out.println("\n====== Daftar Cinema ======");
+        for (Cinema cinema : cinemas) {
+            System.out.println("Film: " + cinema.getRoom().getDeskripsi());
+            System.out.println("  - Kursi Tersedia: " + cinema.getKursiTersedia());
+            System.out.println("  - Kursi Terjual: " + cinema.getJumlahTiketTerjual());
+            System.out.println("------------------------------------");
+        }
     }
 
     public int inputInt() {
